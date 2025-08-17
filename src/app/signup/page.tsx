@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { z } from 'zod';
-import { FaEye, FaEyeSlash, FaGoogle, FaFacebook } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaGoogle } from 'react-icons/fa';
 
 const passwordSchema = z
   .string()
@@ -43,8 +43,11 @@ export default function SignupPage() {
   const validateField = (name: string, value: string) => {
     try {
       if (name === 'confirmPassword') {
-        signupSchema.parse(formData);
-        setErrors(prev => ({ ...prev, [name]: '' }));
+        if (value !== formData.password) {
+          setErrors(prev => ({ ...prev, [name]: 'Passwords do not match' }));
+        } else {
+          setErrors(prev => ({ ...prev, [name]: '' }));
+        }
       } else {
         // Create a single-field schema based on the field being validated
         const fieldSchema = name === 'password' 
@@ -57,6 +60,15 @@ export default function SignupPage() {
           
         fieldSchema.parse(value);
         setErrors(prev => ({ ...prev, [name]: '' }));
+        
+        // Also validate confirm password if password field changes
+        if (name === 'password' && formData.confirmPassword) {
+          if (value !== formData.confirmPassword) {
+            setErrors(prev => ({ ...prev, confirmPassword: 'Passwords do not match' }));
+          } else {
+            setErrors(prev => ({ ...prev, confirmPassword: '' }));
+          }
+        }
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -168,27 +180,26 @@ export default function SignupPage() {
         </div>
         
         {success ? (
-          <div className="text-center space-y-4">
-            <div className="text-green-500 text-xl">
-              Registration successful! Redirecting...
+          <div className="text-center space-y-4 p-6 bg-green-50 rounded-lg border border-green-200">
+            <div className="text-green-600 text-2xl font-semibold">
+              ✅ Account Created Successfully!
+            </div>
+            <p className="text-green-700">
+              Welcome to AccidentAware! You can now access your dashboard.
+            </p>
+            <div className="text-green-600">
+              Redirecting to dashboard...
             </div>
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="w-full">
               <button
                 onClick={() => handleSocialSignup('google')}
-                className="flex items-center justify-center gap-2 p-2 border rounded hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-center gap-2 p-2 border rounded hover:bg-gray-50 transition-colors"
               >
                 <FaGoogle className="text-red-500" />
                 Sign up with Google
-              </button>
-              <button
-                onClick={() => handleSocialSignup('facebook')}
-                className="flex items-center justify-center gap-2 p-2 border rounded hover:bg-gray-50 transition-colors"
-              >
-                <FaFacebook className="text-blue-600" />
-                Sign up with Facebook
               </button>
             </div>
 
@@ -328,10 +339,10 @@ export default function SignupPage() {
         <p className="text-center text-gray-600">
           Already have an account?{' '}
           <button
-            onClick={() => router.push('/login')}
+            onClick={() => router.push('/signin')}
             className="text-cyan-600 hover:underline"
           >
-            Log In
+            Sign In
           </button>
         </p>
       </Card>

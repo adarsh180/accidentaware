@@ -14,6 +14,7 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
+    "db:deploy": "node deploy-db.js",
     "postinstall": "prisma generate"
   },
   "dependencies": {

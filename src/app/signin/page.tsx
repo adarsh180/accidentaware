@@ -6,7 +6,7 @@ import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { z } from 'zod';
-import { FaEye, FaEyeSlash, FaGoogle, FaFacebook } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaGoogle } from 'react-icons/fa';
 import Link from 'next/link';
 
 const loginSchema = z.object({
@@ -77,20 +77,13 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="w-full">
             <button
               onClick={() => handleSocialLogin('google')}
-              className="flex items-center justify-center gap-2 p-2 border rounded hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center justify-center gap-2 p-2 border rounded hover:bg-gray-50 transition-colors"
             >
               <FaGoogle className="text-red-500" />
               Sign in with Google
-            </button>
-            <button
-              onClick={() => handleSocialLogin('facebook')}
-              className="flex items-center justify-center gap-2 p-2 border rounded hover:bg-gray-50 transition-colors"
-            >
-              <FaFacebook className="text-blue-600" />
-              Sign in with Facebook
             </button>
           </div>
 

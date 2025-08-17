@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { products, Product } from '@/lib/products';
 import { useCart } from '@/lib/cart-context';
 import { Cart } from '@/components/cart';
+import Link from 'next/link';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -24,7 +25,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const { dispatch } = useCart();
+  const { state, dispatch } = useCart();
 
   const handleAddToCart = () => {
     setIsAddingToCart(true);
@@ -106,21 +107,28 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          <div className="flex gap-4 mt-8">
-            <Button
-              onClick={handleAddToCart}
-              disabled={product.stockStatus === 'Out of Stock' || isAddingToCart}
-              className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white disabled:bg-gray-400"
-            >
-              {isAddingToCart ? 'Adding...' : 'Add to Cart'}
-            </Button>
-            <Button
-              onClick={handleBuyNow}
-              disabled={product.stockStatus === 'Out of Stock'}
-              className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white disabled:bg-gray-400"
-            >
-              Buy Now
-            </Button>
+          <div className="space-y-4 mt-8">
+            <div className="flex gap-4">
+              <Button
+                onClick={handleAddToCart}
+                disabled={product.stockStatus === 'Out of Stock' || isAddingToCart}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white disabled:bg-gray-400"
+              >
+                {isAddingToCart ? 'Adding...' : 'Add to Cart'}
+              </Button>
+              <Button
+                onClick={handleBuyNow}
+                disabled={product.stockStatus === 'Out of Stock'}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white disabled:bg-gray-400"
+              >
+                Buy Now
+              </Button>
+            </div>
+            <Link href="/cart">
+              <Button variant="outline" className="w-full">
+                View Cart ({state.items.reduce((sum, item) => sum + item.quantity, 0)} items)
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

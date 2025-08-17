@@ -3,17 +3,17 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // Using String instead of enum for Role
 model UserRole {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid())
   userId    String
   role      String   // Changed from Role enum to String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Account {
@@ -51,7 +51,7 @@ model VerificationToken {
 }
 
 model User {
-  id            String          @id @default(uuid())
+  id            String          @id @default(cuid())
   email         String          @unique
   passwordHash  String?
   fullName      String?
@@ -68,27 +68,27 @@ model User {
 }
 
 model RidingHistory {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   userId      String
   startTime   DateTime
   endTime     DateTime?
   distance    Float
   coordinates String   // Changed from Json to String - will store serialized JSON
   createdAt   DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model SOSContact {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid())
   userId    String
   name      String
   phone     String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Order {
-  id                String   @id @default(uuid())
+  id                String   @id @default(cuid())
   userId            String
   razorpayOrderId   String   @unique
   razorpayPaymentId String   @unique
@@ -97,11 +97,11 @@ model Order {
   items             String   // Changed from Json to String - will store serialized JSON
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  user              User     @relation(fields: [userId], references: [id])
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Address {
-  id        String   @id @default(uuid())
+  id        String   @id @default(cuid())
   userId    String
   name      String
   address   String
@@ -114,5 +114,5 @@ model Address {
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

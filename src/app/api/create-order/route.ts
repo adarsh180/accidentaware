@@ -12,12 +12,22 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { amount, receipt } = body;
 
+    const razorpayAmount = formatAmountForRazorpay(amount);
+
+    if (razorpayAmount < 100) {
+      return NextResponse.json(
+        { success: false, error: 'Amount must be at least ₹1' },
+        { status: 400 }
+      );
+    }
+
     const options = {
-      amount: formatAmountForRazorpay(amount),
+      amount: razorpayAmount,
       currency: razorpayConfig.currency,
       receipt,
     };
 
+    console.log('Creating Razorpay order with options:', options);
     const order = await razorpay.orders.create(options);
 
     return NextResponse.json(

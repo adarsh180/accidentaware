@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { signIn } from '@/auth';
-import { cookies } from 'next/headers';
+
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -70,17 +69,6 @@ export async function POST(request: Request) {
       });
 
       console.log('User created successfully:', { id: user.id, email: user.email });
-
-      // Sign in the user automatically after registration
-      const response = await signIn('credentials', {
-        email: validatedData.email,
-        password: validatedData.password,
-        redirect: false,
-      });
-
-      if (response?.error) {
-        console.error('Auto-login failed:', response.error);
-      }
 
       return NextResponse.json({ success: true, userId: user.id }, { status: 201 });
     } catch (dbError) {

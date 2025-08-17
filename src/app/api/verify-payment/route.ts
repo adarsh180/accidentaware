@@ -1,11 +1,19 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { razorpayConfig } from '@/lib/razorpay';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth.config';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, items } = body;
 
     // Verify the payment signature
     const text = `${razorpay_order_id}|${razorpay_payment_id}`;
@@ -15,8 +23,20 @@ export async function POST(request: Request) {
       .digest('hex');
 
     if (generated_signature === razorpay_signature) {
+      // Save order to database
+      const order = await prisma.order.create({
+        data: {
+          userId: session.user.id,
+          razorpayOrderId: razorpay_order_id,
+          razorpayPaymentId: razorpay_payment_id,
+          amount: amount || 0,
+          status: 'completed',
+          items: JSON.stringify(items || [])
+        }
+      });
+
       return NextResponse.json(
-        { success: true, message: 'Payment verified successfully' },
+        { success: true, message: 'Payment verified successfully', orderId: order.id },
         { status: 200 }
       );
     } else {

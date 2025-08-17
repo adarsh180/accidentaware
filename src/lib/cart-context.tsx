@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer, ReactNode } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useEffect, useState } from 'react';
 import { Product } from './products';
 
 interface CartItem {
@@ -88,7 +88,34 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 };
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const [isHydrated, setIsHydrated] = useState(false);
   const [state, dispatch] = useReducer(cartReducer, { items: [], total: 0 });
+
+  // Load from localStorage after hydration
+  useEffect(() => {
+    const saved = localStorage.getItem('cart');
+    if (saved) {
+      const parsedState = JSON.parse(saved);
+      // Restore cart state
+      parsedState.items.forEach((item: any) => {
+        dispatch({ type: 'ADD_TO_CART', payload: item.product });
+        if (item.quantity > 1) {
+          dispatch({ 
+            type: 'UPDATE_QUANTITY', 
+            payload: { productId: item.product.id, quantity: item.quantity }
+          });
+        }
+      });
+    }
+    setIsHydrated(true);
+  }, []);
+
+  // Save to localStorage whenever state changes (only after hydration)
+  useEffect(() => {
+    if (isHydrated) {
+      localStorage.setItem('cart', JSON.stringify(state));
+    }
+  }, [state, isHydrated]);
 
   return (
     <CartContext.Provider value={{ state, dispatch }}>

@@ -230,7 +230,11 @@ export default function CheckoutPage() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(response)
+          body: JSON.stringify({
+            ...response,
+            amount: state.total,
+            items: state.items
+          })
         });
 
         if (verifyResponse.ok) {
@@ -382,42 +386,58 @@ export default function CheckoutPage() {
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold mb-6">Order Summary</h2>
-          <div className="space-y-4">
-            {state.items.map((item) => (
-              <Card key={item.product.id} className="p-4">
-                <div className="flex gap-4">
-                  <div className="relative w-20 h-20">
-                    <Image
-                      src={item.product.images[0]}
-                      alt={item.product.name}
-                      fill
-                      className="object-cover rounded"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{item.product.name}</h3>
-                    <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                    <p className="text-cyan-600 font-medium">₹{item.product.price * item.quantity}</p>
+          <Card className="p-6">
+            <h2 className="text-2xl font-bold mb-6 text-gray-900">Order Summary</h2>
+            <div className="space-y-6">
+              {state.items.map((item) => (
+                <div key={item.product.id} className="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0">
+                  <div className="flex gap-4">
+                    <div className="relative w-24 h-24 flex-shrink-0">
+                      <Image
+                        src={item.product.images[0]}
+                        alt={item.product.name}
+                        fill
+                        className="object-cover rounded-lg"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <h3 className="font-semibold text-lg text-gray-900">{item.product.name}</h3>
+                      <p className="text-sm text-gray-600 line-clamp-2">{item.product.description}</p>
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm text-gray-500">Category: <span className="capitalize font-medium">{item.product.category}</span></span>
+                        <span className="text-sm text-gray-500">Qty: <span className="font-medium">{item.quantity}</span></span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-500">₹{item.product.price} × {item.quantity}</span>
+                        <span className="text-lg font-bold text-cyan-600">₹{item.product.price * item.quantity}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </Card>
-            ))}
-            <div className="border-t pt-4 space-y-2">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>₹{state.total}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>Free</span>
-              </div>
-              <div className="flex justify-between font-bold">
-                <span>Total</span>
-                <span>₹{state.total}</span>
+              ))}
+              
+              <div className="border-t border-gray-200 pt-4 space-y-3">
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal ({state.items.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
+                  <span>₹{state.total}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Shipping & Handling</span>
+                  <span className="text-green-600 font-medium">FREE</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Tax</span>
+                  <span>Included</span>
+                </div>
+                <div className="border-t border-gray-200 pt-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xl font-bold text-gray-900">Total Amount</span>
+                    <span className="text-2xl font-bold text-cyan-600">₹{state.total}</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
 
